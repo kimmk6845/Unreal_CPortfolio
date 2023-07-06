@@ -1,0 +1,204 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "Components/ActorComponent.h"
+#include "CWeaponComponent.generated.h"
+
+////  @ 무기 타입 ENUM
+///////////////////////////////////////////////////////////////////////////////////////////////////
+UENUM(BlueprintType)
+enum class EWeaponType : uint8
+{
+	OneHand, Assassin, Rifle, Unarmed
+};
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+//// @ 델리게이트
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FWeaponTypeChanged, EWeaponType, InPrevType, EWeaponType, InNewType);
+
+
+
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class CPORTFOLIO_API UCWeaponComponent : public UActorComponent
+{
+	GENERATED_BODY()
+
+////  @ Default Class Function
+///////////////////////////////////////////////////////////////////////////////////////////////////
+public:
+	UCWeaponComponent();
+
+protected:
+	virtual void BeginPlay() override;
+
+public:	
+	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+/* =========================================== PUBLIC =========================================== */
+
+//////////////////////////////////
+///// <<<<< FUNCTION >>>>>> //////
+//////////////////////////////////
+public:
+	//// @ 현재 무기 확인 Getter
+	////////////////////////////////////////////////////////////////////////////////
+	FORCEINLINE bool IsUnarmedMode() { return Type == EWeaponType::Unarmed; }
+	FORCEINLINE bool IsOneHandMode() { return Type == EWeaponType::OneHand; }
+	FORCEINLINE bool IsAssassinMode() { return Type == EWeaponType::Assassin; }
+	FORCEINLINE bool IsRifleMode() { return Type == EWeaponType::Rifle; }
+	////////////////////////////////////////////////////////////////////////////////
+
+	FORCEINLINE class ACWeapon* GetWeapon() { return Weapon; }
+	FORCEINLINE EWeaponType GetWeaponType() { return Type; }
+
+public:
+	//// @ 무기 변경 Setter
+	////////////////////////////////////////////////////////////////////////////////
+	void SetUnarmedMode();
+	void SetOneHandMode();
+	void SetAssassinMode();
+	void SetRifleMode();
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	//// @ 무기 장착 및 해제
+	////////////////////////////////////////////////////////////////////////////////
+	void Begin_Equip();
+	void End_Equip();
+	void End_UnEquip();
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	//// @ Hand IK 
+	////////////////////////////////////////////////////////////////////////////////
+	FVector GetLeftHandLocation();
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	//// @ Action (Left Click Function)
+	////////////////////////////////////////////////////////////////////////////////
+	void DoAction();
+	void Begin_DoAction();
+	void End_DoAction();
+
+	void RandomDoAction();
+
+	void End_Fire();
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	//// @ Check Function
+	////////////////////////////////////////////////////////////////////////////////
+	bool IsInAim();
+	bool IsFiring();
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	//// @ Reload Function (Input R Key)
+	////////////////////////////////////////////////////////////////////////////////
+	void Reload();
+	void Eject_Magazine();
+	void Spawn_Magazine();
+	void Load_Magazine();
+	void End_Reload();
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	//// @ SubAction (Right Click Function)
+	////////////////////////////////////////////////////////////////////////////////
+	void Begin_SubAction();
+	void End_SubAction();
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	//// @ Q Skill Function (Input Q Key)
+	////////////////////////////////////////////////////////////////////////////////
+	void SkillQ();
+	void Begin_SkillQ();
+	void End_SkillQ();
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	//// @ E Skill Function (Input E Key)
+	////////////////////////////////////////////////////////////////////////////////
+	void SkillE();
+	void Begin_SkillE();
+	void End_SkillE();
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	//// @ SubSkill Function (Input X Key)
+	////////////////////////////////////////////////////////////////////////////////
+	void SubSkill();
+	////////////////////////////////////////////////////////////////////////////////
+
+
+	//// @ 데미지 전달 함수
+	////////////////////////////////////////////////////////////////////////////////
+	void Damaged(class ACharacter* InAttacker, class AActor* InCauser, struct FHitDatas* InHitData);
+	////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+//////////////////////////////////
+///// <<<<< VARIABLE >>>>>> //////
+//////////////////////////////////
+public:
+	FWeaponTypeChanged OnWeaponTypeChange;	//<< 델리게이트
+
+	TArray<class ACWeapon*> Weapons;		//<< WeaponClass를 형변환해서 담아놓을 배열 변수
+
+/* =========================================== PUBLIC =========================================== */
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+
+
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+/* =========================================== PRIVATE =========================================== */
+
+//////////////////////////////////
+///// <<<<< FUNCTION >>>>>> //////
+//////////////////////////////////
+private:
+	//// @ 무기 변환 함수
+	////////////////////////////////////////////////////////////////////////////////
+	void ChangeType(EWeaponType inType);
+	void SetMode(EWeaponType inType);
+	////////////////////////////////////////////////////////////////////////////////
+
+
+
+//////////////////////////////////
+///// <<<<< VARIABLE >>>>>> //////
+//////////////////////////////////
+private:
+	UPROPERTY(EditAnywhere, Category = "Weapon")
+		TArray<TSubclassOf<class ACWeapon>> WeaponClasses;	//<< 무기 스폰 클래스 
+
+	UPROPERTY(EditAnywhere, Category = "HUD")
+		TSubclassOf<class UCUserWidget_HUD> HUDClass;		//<< 플레이어 상태 위젯 클래스
+
+
+	class ACWeapon* Weapon;			//<< Weapon 클래스의 멤버를 호출할 내부 변수
+	class ACharacter* Owner;		//<< 컴포넌트 소유주 케릭터
+
+	class UCUserWidget_HUD* HUD;	//<< HUD
+
+
+	EWeaponType Type = EWeaponType::Unarmed;		//<< 무기 변환에 사용될 타입
+
+/* =========================================== PRIVATE =========================================== */
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+//@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
+
+};
