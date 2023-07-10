@@ -34,6 +34,6 @@ private:
 
 
 	UPROPERTY()
-		TArray<class ACharacter*> Targets;	// 당겨지는 케릭터 배열
+		TArray<class ACharacter*> Targets;	// 범위 안에 있는 케릭터 배열
 
 };

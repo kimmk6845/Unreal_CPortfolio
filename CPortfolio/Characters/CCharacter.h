@@ -72,7 +72,6 @@ public:
 
 public:
 	virtual void PlayAnimation(class ACharacter* InOwner);
-	virtual void ForcePlayAnimation(class ACharacter* InOwner);		// 어떤 몽타주가 실행되고 있더라도 무시하고 실행
 	virtual void PlayHitStop(class UWorld* InWorld);
 	virtual void PlaySound(class ACharacter* InOwner);
 	virtual void PlayEffect(class UWorld* InWorld, const FVector& InLocation);

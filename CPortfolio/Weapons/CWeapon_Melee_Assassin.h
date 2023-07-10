@@ -103,7 +103,8 @@ private:
 
 	uint8 Qidx = 0;									//<< Q스킬 인덱스
 
-	class ACharacter* TargetEnemy = nullptr;		//<< Q스킬 타게팅 액터
+	class ACharacter* TargetEnemy = nullptr;		//<< Q스킬 타게팅 케릭터
+	TArray<class ACharacter*> attackedTarget;		//<< 피니시 공격 당한 케릭터
 
 	bool bSkillQ = false;							//<< Q스킬 사용중인지 체크
 

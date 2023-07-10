@@ -24,19 +24,17 @@ void ACSkill2OneHand::BeginPlay()
 	Collision->OnComponentBeginOverlap.AddDynamic(this, &ACSkill2OneHand::OnComponentBeginOverlap);
 	Collision->OnComponentEndOverlap.AddDynamic(this, &ACSkill2OneHand::OnComponentEndOverlap);
 
-	// 케릭터 소켓에 붙기
-
 }
 
 void ACSkill2OneHand::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	// ### 타겟 액터들 끌어당기기
-	// 중앙일수록 더 강하게...
+
 	for (ACharacter* target : Targets)
 	{
 		FVector direction = (target->GetActorLocation() - GetActorLocation()).GetSafeNormal();
-		target->LaunchCharacter(-direction * 30.0f, true, true);
+		float dist = target->GetDistanceTo(this);
+		target->LaunchCharacter(-direction * (dist / 2), true, true);
 	}
 }
 
@@ -44,7 +42,6 @@ void ACSkill2OneHand::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCom
 {
 	CheckTrue(GetOwner() == OtherActor);
 
-	// ### 타겟 배열에 넣기
 	ACharacter* character = Cast<ACharacter>(OtherActor);
 	CheckNull(character);
 	if (Targets.Find(character) < 0)
@@ -56,7 +53,6 @@ void ACSkill2OneHand::OnComponentEndOverlap(UPrimitiveComponent* OverlappedCompo
 {
 	CheckTrue(GetOwner() == OtherActor);
 
-	// ### 타겟 배열에서 빼기
 	ACharacter* character = Cast<ACharacter>(OtherActor);
 	if (Targets.Find(character) < 0)
 		return;

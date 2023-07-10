@@ -88,7 +88,7 @@ void ACWeapon_Melee_Assassin::Tick(float DeltaTime)
 	// @ 카메라 워킹
 	if (Weapon->IsAssassinMode() && !!springArm)
 	{
-		if (InAir == true)	
+		if (bInAir == true)
 		{
 			// 공중 콤보 중일 때
 			springArm->TargetArmLength = UKismetMathLibrary::FInterpTo(springArm->TargetArmLength, InitSpringArmLength * 1.5, DeltaTime, 1.5f);
@@ -162,6 +162,9 @@ void ACWeapon_Melee_Assassin::Tick(float DeltaTime)
 				ACharacter* enemy = Cast<ACharacter>(actor);
 				if (!!enemy)
 				{
+					if (attackedTarget.Find(enemy) >= 0)		// 이미 공격 당했던 적은 패스
+						continue;
+
 					FVector direction = enemy->GetActorLocation() - camera->GetComponentLocation();
 					direction = direction.GetSafeNormal2D();
 
@@ -199,7 +202,7 @@ void ACWeapon_Melee_Assassin::Tick(float DeltaTime)
 		if (hit.bBlockingHit)
 		{
 			ACharacter* character = Cast<ACharacter>(hit.GetActor());
-			if (!!character)
+			if (!!character && attackedTarget.Find(character) < 0)
 			{
 				TargetEnemy = character;
 			}
@@ -279,6 +282,7 @@ void ACWeapon_Melee_Assassin::End_SkillQ()
 	bSkillQ = false;
 	Qidx = 0;
 	TargetWidget->HiddenTarget();
+	attackedTarget.Empty();
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -332,7 +336,7 @@ void ACWeapon_Melee_Assassin::BackAttack()
 {
 	Super::BackAttack();
 
-	if (InAir == true && !!Candidate)
+	if (bInAir == true && !!Candidate)
 	{
 		FVector direction = Candidate->GetActorLocation() - Character->GetActorLocation();
 		direction = direction.GetSafeNormal2D();
@@ -357,6 +361,7 @@ void ACWeapon_Melee_Assassin::SubSkill()
 	if (!!TargetEnemy)
 	{
 		TargetWidget->HiddenTarget();
+		attackedTarget.AddUnique(TargetEnemy);
 
 		// 텔레포트 시 Lag 속도를 낮춰 카메라가 뒤늦게 따라오도록 함
 		springArm->CameraLagSpeed = 2.0f;

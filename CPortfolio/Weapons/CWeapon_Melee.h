@@ -130,7 +130,8 @@ protected:
 
 	float CollisionRadius;		//<< 콜리전 범위 변수
 
-	bool InAir = false;			//<< 공중에 떠 있는지 체크
+	bool bInAir = false;		//<< 공중에 떠 있는지 체크
+	bool bSkilling = false;		//<< 스킬 사용중인지 체크
 	float InitSpringArmLength;	//<< 스프링암 조절하기 위한 초기 스프링암 값 담는 변수
 
 	class ACharacter* Candidate;			//<< 멀티 히트 발생 시 케릭터의 가장 정면에 있는 적 케릭터

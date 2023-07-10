@@ -94,7 +94,7 @@ void ACWeapon_Melee::OnCollision()
 	for (UShapeComponent* collision : Collisions)
 		collision->SetCollisionEnabled(ECollisionEnabled::QueryAndPhysics);
 
-	if (InAir == true)
+	if (bInAir == true)
 	{
 		// 잔상 효과
 		CheckNull(GhostTrailClass);
@@ -150,7 +150,7 @@ void ACWeapon_Melee::OffColiision()
 	}
 
 	// 공콤 아닐 때만 정면 적 바라보기
-	if (InAir == false)
+	if (bInAir == false && bSkilling == false)
 	{
 		if (!!Candidate)
 		{
@@ -215,7 +215,7 @@ void ACWeapon_Melee::DoAction()
 {
 	Super::DoAction();
 
-	if (InAir == true)
+	if (bInAir == true)
 	{
 		if (AirComboDatas.Num() > 0)
 		{
@@ -272,7 +272,7 @@ void ACWeapon_Melee::Begin_DoAction()
 		bExist = false;
 		index++;
 
-		if (InAir == true)
+		if (bInAir == true)
 		{
 			PLAY_ANIM_AIRMONTAGE(index);
 			float launchZ = AirComboDatas[index].Launch;
@@ -294,7 +294,7 @@ void ACWeapon_Melee::End_DoAction()
 {
 	Super::End_DoAction();
 	index = 0;
-	InAir = false;
+	bInAir = false;
 	Character->GetCharacterMovement()->SetMovementMode(EMovementMode::MOVE_Walking);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -331,7 +331,7 @@ void ACWeapon_Melee::Begin_SubAction()
 	if (State->IsIdleMode() == true)
 	{
 		State->SetActionMode();
-		InAir = true;
+		bInAir = true;
 
 		PLAY_ANIM_AIRMONTAGE(0);
 	}
@@ -354,7 +354,6 @@ void ACWeapon_Melee::Begin_SubAction()
 //// @ param 1: overlap된 케릭터
 //// @ param 2: overlap된 케릭터의 콜리전 컴포넌트
 //// TODO: 공격당한 케릭터들을 모아놓는 배열에 중복이 없이 등록하고 데미지를 전달
-
 void ACWeapon_Melee::OnBeginOverlap(ACharacter* otherCharacter, UShapeComponent* attackComponent)
 {
 	if (Hitted.Find(otherCharacter) < 0)
@@ -364,7 +363,7 @@ void ACWeapon_Melee::OnBeginOverlap(ACharacter* otherCharacter, UShapeComponent*
 		UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(otherCharacter);
 		if (!!weapon)
 		{
-			if (InAir == true)
+			if (bInAir == true)
 			{
 				weapon->Damaged(Character, this, &AirHitDatas[index]);
 

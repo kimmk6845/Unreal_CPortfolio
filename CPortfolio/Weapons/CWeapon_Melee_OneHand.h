@@ -56,7 +56,7 @@ private:
 ///// <<<<< VARIABLE >>>>>> //////
 //////////////////////////////////
 	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
-		class UStaticMeshComponent* Sheath;					//<< 칼집
+		class UStaticMeshComponent* Sheath;					//<< 칼집 메시
 
 	UPROPERTY(EditDefaultsOnly, Category = "Mesh")
 		class UStaticMeshComponent* Sword;					//<< 칼 메시
@@ -68,6 +68,7 @@ private:
 		TSubclassOf<class ACSkill2OneHand> SkillEClass;	//<< E스킬 클래스
 
 	class ACSkill2OneHand* skillE;	//<< 스폰 E스킬 액터클래스
+	TArray<FHitDatas>  tempDatas;	//<< Hit데이터 임시 배열
 
 /* =========================================== PRIVATE =========================================== */
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//

@@ -68,6 +68,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		float Launch = 0.0f;
 
+	UPROPERTY(EditAnywhere)
+		bool bForceAnimation = false;
+
 };
 
 USTRUCT(BlueprintType)

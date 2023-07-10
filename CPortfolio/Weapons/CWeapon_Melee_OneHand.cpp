@@ -3,6 +3,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Components/CWeaponComponent.h"
+#include "Components/CStatusComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Gameframework/Character.h"
 #include "CSkill1OneHand.h"
@@ -22,6 +23,7 @@ ACWeapon_Melee_OneHand::ACWeapon_Melee_OneHand()
 	CHelpers::GetAsset<UDataTable>(&AirComboDataTable, L"DataTable'/Game/BP/Weapons/OneHand/OneHand_AirCombo.OneHand_AirCombo'");
 	CHelpers::GetAsset<UDataTable>(&AirHitDataTable, L"DataTable'/Game/BP/Weapons/OneHand/OneHand_AirHitData.OneHand_AirHitData'");
 	CHelpers::GetAsset<UDataTable>(&SkillQHitDataTable, L"DataTable'/Game/BP/Weapons/OneHand/OneHand_SkillQHitData.OneHand_SkillQHitData'");
+	CHelpers::GetAsset<UDataTable>(&SkillEHitDataTable, L"DataTable'/Game/BP/Weapons/OneHand/OneHand_SkillEHitData.OneHand_SkillEHitData'");
 	bUseControlRotation = false;
 
 	CHelpers::CreateComponent<UStaticMeshComponent>(this, &Sheath, "Sheath", RootComponent);
@@ -77,7 +79,7 @@ void ACWeapon_Melee_OneHand::Tick(float DeltaTime)
 
 	if (Weapon->IsOneHandMode() && !!springArm)
 	{
-		if (InAir == true)
+		if (bInAir == true)
 		{
 			springArm->TargetArmLength = UKismetMathLibrary::FInterpTo(springArm->TargetArmLength, InitSpringArmLength * 1.5, DeltaTime, 1.5f);
 		}
@@ -164,6 +166,9 @@ void ACWeapon_Melee_OneHand::SkillE()
 	Super::SkillE();
 
 	Status->Stop();
+	bSkilling = true;
+	tempDatas = HitDatas;
+	HitDatas = SkillEHitDatas;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -183,7 +188,8 @@ void ACWeapon_Melee_OneHand::Begin_SkillE()
 	params.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
 	skillE = Character->GetWorld()->SpawnActor<ACSkill2OneHand>(SkillEClass, transform, params);
-
+	skillE->AttachToActor(Character, FAttachmentTransformRules::KeepWorldTransform, "pelvis");
+	Collision->SetCapsuleHalfHeight(500.0f);	// ### 그냥 히트데이터가 들어감, 애니메이션도 부자연스러움
 }
 
 void ACWeapon_Melee_OneHand::End_SkillE()
@@ -191,7 +197,10 @@ void ACWeapon_Melee_OneHand::End_SkillE()
 	Super::End_SkillE();
 
 	skillE->Destroy();
+	Collision->SetCapsuleHalfHeight(90.0f);
 	Status->Move();
+	bSkilling = false;
+	HitDatas = tempDatas;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

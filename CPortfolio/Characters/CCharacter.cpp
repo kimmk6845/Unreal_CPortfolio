@@ -56,15 +56,13 @@ void ACCharacter::PlayAnimation(ACharacter* InOwner)
 {
 	CheckNull(Damage.HitData->HitMontage);
 
-	if(GetMesh()->GetAnimInstance()->IsAnyMontagePlaying() == false)
-		InOwner->PlayAnimMontage(Damage.HitData->HitMontage, Damage.HitData->Hit_MontagePlayRatio);
-}
-void ACCharacter::ForcePlayAnimation(ACharacter* InOwner)
-{
-	CheckNull(Damage.HitData->HitMontage);
+	// 몽타주 실행 중이면서, 체크변수가 false이면 애니메이션 실행하지 않음
+	if (GetMesh()->GetAnimInstance()->IsAnyMontagePlaying() == true && Damage.HitData->bForceAnimation == false)
+		return;
 
 	InOwner->PlayAnimMontage(Damage.HitData->HitMontage, Damage.HitData->Hit_MontagePlayRatio);
 }
+
 void ACCharacter::PlayHitStop(UWorld* InWorld)
 {
 	CheckTrue(FMath::IsNearlyZero(Damage.HitData->HitStop));
