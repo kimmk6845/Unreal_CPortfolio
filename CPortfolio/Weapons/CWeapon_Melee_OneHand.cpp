@@ -17,7 +17,8 @@ ACWeapon_Melee_OneHand::ACWeapon_Melee_OneHand()
 	CHelpers::GetAsset<UAnimMontage>(&UnEquipMontage, L"AnimMontage'/Game/GhostLady_S1/Montages/OneHand/OneHand_Unequip_Montage.OneHand_Unequip_Montage'");
 	CHelpers::GetAsset<UAnimMontage>(&SkillQMontage, L"AnimMontage'/Game/GhostLady_S1/Montages/OneHand/OneHand_Skill1_Montage.OneHand_Skill1_Montage'");
 	CHelpers::GetAsset<UAnimMontage>(&SkillEMontage, L"AnimMontage'/Game/GhostLady_S1/Montages/OneHand/OneHand_Skill2_Montage.OneHand_Skill2_Montage'");
-	
+	CHelpers::GetAsset<UAnimMontage>(&DashMontage, L"AnimMontage'/Game/GhostLady_S1/Montages/Common/Dash_OneHand_Montage.Dash_OneHand_Montage'");
+
 	CHelpers::GetAsset<UDataTable>(&DoActionDataTable, L"DataTable'/Game/BP/Weapons/OneHand/OneHand_DoAction.OneHand_DoAction'");
 	CHelpers::GetAsset<UDataTable>(&HitDataTable, L"DataTable'/Game/BP/Weapons/OneHand/OneHand_HitData.OneHand_HitData'");
 	CHelpers::GetAsset<UDataTable>(&AirComboDataTable, L"DataTable'/Game/BP/Weapons/OneHand/OneHand_AirCombo.OneHand_AirCombo'");
@@ -53,6 +54,7 @@ ACWeapon_Melee_OneHand::ACWeapon_Melee_OneHand()
 
 	CHelpers::GetClass(&SkillEClass, "Blueprint'/Game/BP/Weapons/OneHand/BP_CSkill2OneHand.BP_CSkill2OneHand_C'");
 
+	DashDistance = 7.0f;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

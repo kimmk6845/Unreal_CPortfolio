@@ -2,6 +2,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "IDamage.h"
 #include "CSkill2Assassin.generated.h"
 
 UCLASS()
@@ -43,6 +44,17 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UAudioComponent* Sound;
 	
+//// Skill Data/////////////////////////////
+public:
+	UPROPERTY(VisibleDefaultsOnly, Category = "Data")
+		TArray<FHitDatas> SkillEHitDatas;
+
+private:
+	UPROPERTY(VisibleDefaultsOnly, Category = "DataTable")
+		class UDataTable* SkillEHitDataTable;
+
+////////////////////////////////////////////
+
 public:	
 	ACSkill2Assassin();
 

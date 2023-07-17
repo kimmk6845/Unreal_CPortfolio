@@ -11,6 +11,7 @@
 //// @ »ý¼ºÀÚ
 ACWeapon::ACWeapon()
 {
+	CHelpers::GetAsset<UAnimMontage>(&DashMontage, L"AnimMontage'/Game/GhostLady_S1/Montages/Common/Dash_Unarmed_Montage.Dash_Unarmed_Montage'");
 
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////

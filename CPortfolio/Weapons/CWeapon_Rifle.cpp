@@ -114,6 +114,8 @@ ACWeapon_Rifle::ACWeapon_Rifle()
 	CHelpers::GetAsset<UAnimMontage>(&SkillQMontage, "AnimMontage'/Game/GhostLady_S1/Montages/Rifle/Rifle_SkillQ_Montage.Rifle_SkillQ_Montage'");
 	SkillQ_PlayRatio = 2.0f;
 
+	CHelpers::GetAsset<UAnimMontage>(&DashMontage, L"AnimMontage'/Game/GhostLady_S1/Montages/Common/Dash_Rifle_Montage.Dash_Rifle_Montage'");
+	DashDistance = 5.0f;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

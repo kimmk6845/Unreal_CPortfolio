@@ -133,6 +133,13 @@ public:
 	////////////////////////////////////////////////////////////////////////////////
 
 
+	//// @ Dash Function
+	////////////////////////////////////////////////////////////////////////////////
+	FORCEINLINE UAnimMontage* GetDashMontage() { return DashMontage; }
+	FORCEINLINE float GetDashDistance() { return DashDistance; }
+	////////////////////////////////////////////////////////////////////////////////
+
+
 /* =========================================== PUBLIC =========================================== */
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@//
@@ -179,6 +186,16 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, Category = "SkillE")
 		float SkillE_PlayRatio = 1.0f;					//<< 스킬E 애니메이션 속도
+
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+		class UAnimMontage* DashMontage;				//<< 대쉬 애니메이션 몽타주
+
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+		float Dash_PlayRatio = 1.0f;					//<< 대쉬 애니메이션 속도
+
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+		float DashDistance = 10.0f;						//<< 대쉬 거리
+
 
 protected:
 	class ACharacter* Character;				//<< Weapon 소유주 케릭터

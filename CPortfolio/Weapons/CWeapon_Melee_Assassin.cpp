@@ -21,6 +21,7 @@ ACWeapon_Melee_Assassin::ACWeapon_Melee_Assassin()
 	CHelpers::GetAsset<UAnimMontage>(&UnEquipMontage, L"AnimMontage'/Game/GhostLady_S1/Montages/Assassin/Assassin_Unequip_Montage.Assassin_Unequip_Montage'");
 	CHelpers::GetAsset<UAnimMontage>(&SkillQMontage, L"AnimMontage'/Game/GhostLady_S1/Montages/Assassin/Assassin_SkillQ_Montage.Assassin_SkillQ_Montage'");
 	CHelpers::GetAsset<UAnimMontage>(&SkillEMontage, L"AnimMontage'/Game/GhostLady_S1/Montages/Assassin/Assassin_SkillE_Montage.Assassin_SkillE_Montage'");
+	CHelpers::GetAsset<UAnimMontage>(&DashMontage, L"AnimMontage'/Game/GhostLady_S1/Montages/Common/Dash_Assassin_Montage.Dash_Assassin_Montage'");
 
 	CHelpers::GetAsset<UDataTable>(&DoActionDataTable, L"DataTable'/Game/BP/Weapons/Assassin/Assassin_DoAction.Assassin_DoAction'");
 	CHelpers::GetAsset<UDataTable>(&HitDataTable, L"DataTable'/Game/BP/Weapons/Assassin/Assassin_HitData.Assassin_HitData'");
@@ -56,6 +57,8 @@ ACWeapon_Melee_Assassin::ACWeapon_Melee_Assassin()
 	CHelpers::GetClass(&GhostTrailClass, "Blueprint'/Game/BP/Effect/BP_CGhostTrail.BP_CGhostTrail_C'");
 
 	CHelpers::GetClass(&SkillEClass, "Blueprint'/Game/BP/Weapons/Assassin/BP_CSkill2Assassin.BP_CSkill2Assassin_C'");
+
+	DashDistance = 15.0f;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 

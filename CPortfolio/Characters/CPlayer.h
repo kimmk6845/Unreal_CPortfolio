@@ -20,9 +20,15 @@ private:
 	UPROPERTY(VisibleDefaultsOnly)
 		class UCameraComponent* Camera;
 
+	UPROPERTY(VisibleDefaultsOnly)
+		class UNiagaraComponent* NGDashComponent;
+
 private:
 	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
 		class UCFeetComponent* FeetComponent;
+
+	UPROPERTY(VisibleDefaultsOnly, Category = "Components")
+		class UCDashComponent* DashComponent;
 
 public:
 	ACPlayer();
@@ -77,13 +83,29 @@ private:
 private:
 	void Avoid() override;
 
+private:
+	void Dash();
 
-// 멤버 변수
+public:
+	void End_Dash();
+
 private:
 	bool bJumping;
 	bool bSprint;
 
 private:
 	UPROPERTY(EditDefaultsOnly, Category = "Team")
-		uint8 TeamID = 1;   //Team ID 설정 플레이어는 1 
+		uint8 TeamID = 1;			// Team ID 설정 플레이어는 1 
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+		float InitVel = 500.0f;		// 대쉬에 필요한 속도
+
+	UPROPERTY(EditAnywhere, Category = "Dash")
+		float InitDashCoolTime = 3.0f;	// 대쉬 쿨타임
+
+	bool bUsedDash = false;
+	float DashCoolTime = 0.0f;
+
+	UPROPERTY(EditDefaultsOnly, Category = "Dash")
+		class UNiagaraSystem* DashEffect;				// 대쉬 이펙트
 };

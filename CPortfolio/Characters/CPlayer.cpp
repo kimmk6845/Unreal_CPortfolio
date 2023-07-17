@@ -4,11 +4,14 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Camera/CameraComponent.h"
+#include "NiagaraComponent.h"
 
 #include "Components/InputComponent.h"
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CFeetComponent.h"
+#include "Components/CDashComponent.h"
 
+#include "Engine/GameEngine.h"	// ###
 ACPlayer::ACPlayer()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -16,8 +19,10 @@ ACPlayer::ACPlayer()
 	// 컴포넌트
 	CHelpers::CreateComponent<USpringArmComponent>(this, &SpringArm, "SpringArm", GetMesh());
 	CHelpers::CreateComponent<UCameraComponent>(this, &Camera, "Camera", SpringArm);
-
+	CHelpers::CreateComponent<UNiagaraComponent>(this, &NGDashComponent, "NGDashComponent", GetCapsuleComponent());
+	
 	CHelpers::CreateActorComponent<UCFeetComponent>(this, &FeetComponent, "FeetComp");
+	CHelpers::CreateActorComponent<UCDashComponent>(this, &DashComponent, "DashComp");
 
 	// 변수 세팅
 	bJumping = ACharacter::bPressedJump;
@@ -44,7 +49,12 @@ ACPlayer::ACPlayer()
 	CHelpers::GetClass<UCAnimInstance>(&animInstance, "AnimBlueprint'/Game/Character/Player/BP_CAnimInstance.BP_CAnimInstance_C'");
 	GetMesh()->SetAnimClass(animInstance);
 
-	
+	// 대시 이펙트
+	CHelpers::GetAsset<UNiagaraSystem>(&DashEffect, L"NiagaraSystem'/Game/Effects/NG_Dash.NG_Dash'");
+	UNiagaraSystem* ngSystem;
+	CHelpers::GetAsset<UNiagaraSystem>(&ngSystem, L"NiagaraSystem'/Game/Effects/NG_Dash.NG_Dash'");
+	NGDashComponent->SetAsset(ngSystem);
+	NGDashComponent->bAutoActivate = false;
 }
 
 void ACPlayer::BeginPlay()
@@ -61,8 +71,9 @@ void ACPlayer::BeginPlay()
 void ACPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 	// 속도 보간
-	if (bSprint == true && GetVelocity().Size2D() != 0)
+	if (bSprint == true && GetVelocity().Size2D() > 0)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = UKismetMathLibrary::FInterpTo(CurrSpeed, 600.0f, DeltaTime, 2);
 		CurrSpeed = GetCharacterMovement()->MaxWalkSpeed;
@@ -71,6 +82,17 @@ void ACPlayer::Tick(float DeltaTime)
 	{
 		GetCharacterMovement()->MaxWalkSpeed = UKismetMathLibrary::FInterpTo(CurrSpeed, 300.0f, DeltaTime, 2);
 		CurrSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	}
+
+	if (bUsedDash == true)
+	{
+		DashCoolTime += DeltaTime;
+		GEngine->AddOnScreenDebugMessage(0, 1, FColor::Red, FString::SanitizeFloat(DashCoolTime));
+		if (DashCoolTime >= InitDashCoolTime)
+		{
+			bUsedDash = false;
+			DashCoolTime = 0.0f;
+		}
 	}
 }
 
@@ -86,6 +108,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	// 액션 매핑
 	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ACPlayer::CheckJump);
+	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Pressed, this, &ACPlayer::Dash);
 	PlayerInputComponent->BindAction("Jump", EInputEvent::IE_Released, this, &ACPlayer::CheckJump);
 
 	PlayerInputComponent->BindAction("Sprint", EInputEvent::IE_Pressed, this, &ACPlayer::Begin_Run);
@@ -106,7 +129,7 @@ void ACPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction("SubSkill", EInputEvent::IE_Pressed, this, &ACPlayer::SubSkill);
 
 	PlayerInputComponent->BindAction("Avoid", EInputEvent::IE_Pressed, this, &ACPlayer::Avoid);		// Ctrl + Space bar
-	PlayerInputComponent->BindAction("Avoid", EInputEvent::IE_Released, this, &ACPlayer::Avoid);
+	// PlayerInputComponent->BindAction("Avoid", EInputEvent::IE_Released, this, &ACPlayer::Avoid);
 }
 
 ///// Movement & Camera Rotation /////
@@ -167,6 +190,10 @@ void ACPlayer::Landed(const FHitResult& Hit)
 
 void ACPlayer::CheckJump()
 {
+	float vel = GetVelocity().Size2D();
+	if (vel >= InitVel)		// 대쉬 속도면 점프를 안함
+		return;
+
 	if (StateComponent->IsIdleMode() == true || StateComponent->IsJumpMode() == true)
 	{
 		if (bJumping == false)
@@ -257,4 +284,33 @@ void ACPlayer::Avoid()
 	Super::Avoid();
 }
 
+//////////////////
+
+
+///// DASH //////
+void ACPlayer::Dash()
+{
+	float vel = GetVelocity().Size2D();
+	if (vel >= InitVel && bUsedDash == false)
+	{
+		// ### 위젯(프로그래스 바)	--> 쿨타임일 때 visible, 사용 가능시 Invisible
+		// ### 대쉬 어택
+		bUsedDash = true;
+
+		NGDashComponent->SetActive(true);
+		// 대쉬 컴포넌트를 통해 대쉬 몽타주랑 거리 조절
+		float dashDistance = DashComponent->GetDistance();
+		LaunchCharacter(GetVelocity() * dashDistance, false, false);
+		PlayAnimMontage(DashComponent->GetMontage());
+
+		// ### State컴포넌트랑 연동해서 상태 변경시키는 것도 있어야 할 듯
+	}
+}
+
+// 노티파이 함수
+void ACPlayer::End_Dash()
+{
+	NGDashComponent->Deactivate();
+	// ### 상태 변경
+}
 //////////////////

@@ -32,6 +32,7 @@ ACSkill2Assassin::ACSkill2Assassin()
 	CHelpers::CreateComponent<UAudioComponent>(this, &Sound, "Sound", Scene);
 	//// 컴포넌트 생성 ///// End
 
+	CHelpers::GetAsset<UDataTable>(&SkillEHitDataTable, L"DataTable'/Game/BP/Weapons/Assassin/Assassin_SkillEHitData.Assassin_SkillEHitData'");
 
 	//// Location, Rotation, Scale 조정
 	Cylinder->SetRelativeRotation(FRotator(-90, 180, 180));
@@ -111,6 +112,22 @@ void ACSkill2Assassin::BeginPlay()
 	Super::BeginPlay();
 	
 	Collision->OnComponentBeginOverlap.AddDynamic(this, &ACSkill2Assassin::OnComponentBeginOverlap);
+
+	{ // Skiill HitData
+	// 스킬 시전 후 다른 무기를 장착할 수 있기 때문에 독립적으로 HitData를 가져야 함
+		if (!!SkillEHitDataTable)
+		{
+			TArray<FName> rowNames = SkillEHitDataTable->GetRowNames();
+			FString contextString(TEXT("SkillEHitDatas Context"));
+
+			for (FName rowName : rowNames)
+			{
+				FHitDatas* rowData = SkillEHitDataTable->FindRow<FHitDatas>(rowName, contextString);
+				SkillEHitDatas.Add(*rowData);
+			}
+		}
+	}
+
 
 	// 케릭터 스킬 소켓 위치로 이동
 	ACharacter* owner = Cast<ACharacter>(GetOwner());
@@ -197,6 +214,7 @@ void ACSkill2Assassin::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 
 	// Hitted 배열에 추가 및 데미지 처리
 	ACharacter* character = Cast<ACharacter>(OtherActor);
+	CheckNull(character);
 	if (Hitted.Find(character) < 0)
 	{
 		Hitted.AddUnique(character);
@@ -204,17 +222,16 @@ void ACSkill2Assassin::OnComponentBeginOverlap(UPrimitiveComponent* OverlappedCo
 		ACharacter* attacker = Cast<ACharacter>(GetOwner());
 		UCWeaponComponent* weaponComp = CHelpers::GetComponent<UCWeaponComponent>(GetOwner());	// 공격자의 무기 히트데이터 가져오기 위함
 		UCWeaponComponent* weapon = CHelpers::GetComponent<UCWeaponComponent>(OtherActor);		// 히트 대상
-		if (!!weapon)
-		{
-			FVector dir = character->GetActorLocation() - GetActorLocation();
-			FVector forVector = character->GetActorForwardVector();
-			float dot = dir.DotProduct(dir, forVector);
+		CheckNull(weapon);
 
-			if (dot < 0)
-				weapon->Damaged(attacker, this, &weaponComp->GetWeapon()->SkillEHitDatas[0]);	// 전방
-			else
-				weapon->Damaged(attacker, this, &weaponComp->GetWeapon()->SkillEHitDatas[1]);	// 후방
-		}
+		FVector dir = character->GetActorLocation() - GetActorLocation();
+		FVector forVector = character->GetActorForwardVector();
+		float dot = dir.DotProduct(dir, forVector);
+
+		if (dot < 0)
+			weapon->Damaged(attacker, this, &SkillEHitDatas[0]);	// 전방
+		else
+			weapon->Damaged(attacker, this, &SkillEHitDatas[1]);	// 후방
 	}
 }
 
